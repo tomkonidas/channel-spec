@@ -90,4 +90,23 @@ defmodule ChannelSpec.IncomingTest do
     assert event.payload == MyApp.JoinPayload
     assert event.description == "User joins"
   end
+
+  test "event supports tags" do
+    defmodule TaggedChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join" do
+          tags ["auth", "presence"]
+        end
+      end
+    end
+
+    [event] = TaggedChannel.__channel_spec__().incoming
+
+    assert event.tags == ["auth", "presence"]
+  end
 end

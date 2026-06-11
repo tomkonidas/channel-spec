@@ -16,6 +16,8 @@ defmodule ChannelSpec do
 
           incoming "join" do
             descritpion "User joins room"
+            payload MyApp.JoinPayload
+            tags ["auth", "presence"]
           end
         end
       end
@@ -147,18 +149,13 @@ defmodule ChannelSpec do
     attrs =
       block
       |> normalize_event_block()
-      |> Enum.reduce(%{}, fn
-        {:description, value}, acc ->
-          Map.put(acc, :description, value)
-
-        {:payload, mod}, acc ->
-          Map.put(acc, :payload, mod)
-      end)
+      |> Map.new()
 
     %ChannelSpec.Event{
       name: name,
       description: attrs[:description],
-      payload: attrs[:payload]
+      payload: attrs[:payload],
+      tags: attrs[:tags] || []
     }
   end
 
@@ -180,16 +177,12 @@ defmodule ChannelSpec do
     {:description, value}
   end
 
-  defp normalize_event_expr({:description, value}) do
-    {:description, value}
-  end
-
   defp normalize_event_expr({:payload, _meta, [mod]}) do
     {:payload, resolve_alias(mod)}
   end
 
-  defp normalize_event_expr({:payload, mod}) do
-    {:payload, resolve_alias(mod)}
+  defp normalize_event_expr({:tags, _meta, [tags]}) do
+    {:tags, tags}
   end
 
   defp resolve_alias({:__aliases__, _, parts}) do

@@ -39,4 +39,21 @@ defmodule ChannelSpec.EventDSL do
       {:payload, unquote(mod)}
     end
   end
+
+  @doc """
+  Associates tags with an event.
+
+  ## Example
+
+      incoming "join" do
+        tags ["auth", "presence"]
+      end
+
+  """
+  @spec tags([String.t()]) :: Macro.t()
+  defmacro tags(tags) when is_list(tags) do
+    quote do
+      {:tags, unquote(tags)}
+    end
+  end
 end
