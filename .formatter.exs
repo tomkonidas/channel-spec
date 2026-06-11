@@ -2,7 +2,8 @@ locals_without_parens = [
   channel_spec: 1,
   topic: 1,
   description: 1,
-  incoming: 1
+  incoming: 1,
+  payload: 1
 ]
 
 [

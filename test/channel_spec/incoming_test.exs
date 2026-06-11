@@ -69,4 +69,25 @@ defmodule ChannelSpec.IncomingTest do
              %Event{name: "leave"}
            ]
   end
+
+  test "event supports payload" do
+    defmodule PayloadChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join" do
+          description "User joins"
+          payload MyApp.JoinPayload
+        end
+      end
+    end
+
+    [event] = PayloadChannel.__channel_spec__().incoming
+
+    assert event.payload == MyApp.JoinPayload
+    assert event.description == "User joins"
+  end
 end

@@ -150,27 +150,51 @@ defmodule ChannelSpec do
       |> Enum.reduce(%{}, fn
         {:description, value}, acc ->
           Map.put(acc, :description, value)
+
+        {:payload, mod}, acc ->
+          Map.put(acc, :payload, mod)
       end)
 
     %ChannelSpec.Event{
       name: name,
-      description: attrs[:description]
+      description: attrs[:description],
+      payload: attrs[:payload]
     }
   end
 
   defp normalize_event_block(nil), do: []
 
-  defp normalize_event_block(block) do
-    block
-    |> List.wrap()
-    |> Enum.map(&normalize_event_expr/1)
+  defp normalize_event_block({:__block__, _meta, exprs}) do
+    Enum.flat_map(exprs, &normalize_event_block/1)
+  end
+
+  defp normalize_event_block(expr) when is_list(expr) do
+    Enum.flat_map(expr, &normalize_event_block/1)
+  end
+
+  defp normalize_event_block(expr) do
+    [normalize_event_expr(expr)]
+  end
+
+  defp normalize_event_expr({:description, _meta, [value]}) do
+    {:description, value}
   end
 
   defp normalize_event_expr({:description, value}) do
     {:description, value}
   end
 
-  defp normalize_event_expr({:description, _meta, args}) do
-    {:description, List.first(args)}
+  defp normalize_event_expr({:payload, _meta, [mod]}) do
+    {:payload, resolve_alias(mod)}
   end
+
+  defp normalize_event_expr({:payload, mod}) do
+    {:payload, resolve_alias(mod)}
+  end
+
+  defp resolve_alias({:__aliases__, _, parts}) do
+    Module.concat(parts)
+  end
+
+  defp resolve_alias(mod) when is_atom(mod), do: mod
 end
