@@ -1,4 +1,4 @@
-defmodule ChannelSpecTest do
+defmodule ChannelSpec.DSLTest do
   use ExUnit.Case, async: true
 
   alias ChannelSpec.Spec
@@ -13,7 +13,7 @@ defmodule ChannelSpecTest do
     end
   end
 
-  test "__channel_spec__/0 returns the declared specification" do
+  test "builds spec with topic and description" do
     assert RoomChannel.__channel_spec__() == %Spec{
              topic: "room:*",
              description: "Chat room channel",

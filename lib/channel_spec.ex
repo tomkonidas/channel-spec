@@ -25,17 +25,9 @@ defmodule ChannelSpec do
     quote do
       import ChannelSpec
 
-      Module.register_attribute(
-        __MODULE__,
-        :channel_spec_topic,
-        persist: false
-      )
-
-      Module.register_attribute(
-        __MODULE__,
-        :channel_spec_description,
-        persist: false
-      )
+      Module.register_attribute(__MODULE__, :channel_spec_topic, [])
+      Module.register_attribute(__MODULE__, :channel_spec_description, [])
+      Module.register_attribute(__MODULE__, :channel_spec_incoming, accumulate: true)
 
       @before_compile ChannelSpec
     end
@@ -90,26 +82,39 @@ defmodule ChannelSpec do
     end
   end
 
+  @doc """
+  Defines an incoming channel event.
+
+  ## Example
+
+      incoming "new_msg"
+
+  """
+  @spec incoming(String.t()) :: Macro.t()
+  defmacro incoming(name) do
+    quote do
+      @channel_spec_incoming %ChannelSpec.Event{
+        name: unquote(name)
+      }
+    end
+  end
+
   @doc false
   @spec __before_compile__(Macro.Env.t()) :: Macro.t()
   defmacro __before_compile__(env) do
-    topic =
-      Module.get_attribute(
-        env.module,
-        :channel_spec_topic
-      )
+    topic = Module.get_attribute(env.module, :channel_spec_topic)
+    description = Module.get_attribute(env.module, :channel_spec_description)
 
-    description =
-      Module.get_attribute(
-        env.module,
-        :channel_spec_description
-      )
+    incoming =
+      env.module
+      |> Module.get_attribute(:channel_spec_incoming)
+      |> Enum.reverse()
 
     quote do
       @channel_spec %ChannelSpec.Spec{
         topic: unquote(topic),
         description: unquote(description),
-        incoming: [],
+        incoming: unquote(Macro.escape(incoming)),
         outgoing: []
       }
 
