@@ -9,13 +9,14 @@ defmodule ChannelSpecTest do
 
     channel_spec do
       topic "room:*"
+      description "Chat room channel"
     end
   end
 
   test "__channel_spec__/0 returns the declared specification" do
     assert RoomChannel.__channel_spec__() == %Spec{
              topic: "room:*",
-             description: nil,
+             description: "Chat room channel",
              incoming: [],
              outgoing: []
            }

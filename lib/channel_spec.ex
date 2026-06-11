@@ -31,6 +31,12 @@ defmodule ChannelSpec do
         persist: false
       )
 
+      Module.register_attribute(
+        __MODULE__,
+        :channel_spec_description,
+        persist: false
+      )
+
       @before_compile ChannelSpec
     end
   end
@@ -69,6 +75,21 @@ defmodule ChannelSpec do
     end
   end
 
+  @doc """
+  Defines a human-readable description for the channel.
+
+  ## Example
+
+      description "Chat room channel"
+
+  """
+  @spec description(String.t()) :: Macro.t()
+  defmacro description(description) do
+    quote do
+      @channel_spec_description unquote(description)
+    end
+  end
+
   @doc false
   @spec __before_compile__(Macro.Env.t()) :: Macro.t()
   defmacro __before_compile__(env) do
@@ -78,9 +99,16 @@ defmodule ChannelSpec do
         :channel_spec_topic
       )
 
+    description =
+      Module.get_attribute(
+        env.module,
+        :channel_spec_description
+      )
+
     quote do
       @channel_spec %ChannelSpec.Spec{
         topic: unquote(topic),
+        description: unquote(description),
         incoming: [],
         outgoing: []
       }
