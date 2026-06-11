@@ -12,6 +12,11 @@ defmodule ChannelSpec do
 
         channel_spec do
           topic "room:*"
+          description "Chat room channel"
+
+          incoming "join" do
+            descritpion "User joins room"
+          end
         end
       end
 
@@ -85,17 +90,26 @@ defmodule ChannelSpec do
   @doc """
   Defines an incoming channel event.
 
-  ## Example
+  ## Examples
 
-      incoming "new_msg"
+      incoming "join"
+
+      incoming "join" do
+        descritpion "User joins room"
+      end
 
   """
   @spec incoming(String.t()) :: Macro.t()
   defmacro incoming(name) do
     quote do
-      @channel_spec_incoming %ChannelSpec.Event{
-        name: unquote(name)
-      }
+      @channel_spec_incoming {:incoming, unquote(name), nil}
+    end
+  end
+
+  @spec incoming(String.t(), do: Macro.t()) :: Macro.t()
+  defmacro incoming(name, do: block) do
+    quote do
+      @channel_spec_incoming {:incoming, unquote(name), unquote(Macro.escape(block))}
     end
   end
 
@@ -108,6 +122,7 @@ defmodule ChannelSpec do
     incoming =
       env.module
       |> Module.get_attribute(:channel_spec_incoming)
+      |> Enum.map(&build_event/1)
       |> Enum.reverse()
 
     quote do
@@ -122,5 +137,40 @@ defmodule ChannelSpec do
       @spec __channel_spec__() :: ChannelSpec.Spec.t()
       def __channel_spec__, do: @channel_spec
     end
+  end
+
+  defp build_event({:incoming, name, nil}) do
+    %ChannelSpec.Event{name: name}
+  end
+
+  defp build_event({:incoming, name, block}) do
+    attrs =
+      block
+      |> normalize_event_block()
+      |> Enum.reduce(%{}, fn
+        {:description, value}, acc ->
+          Map.put(acc, :description, value)
+      end)
+
+    %ChannelSpec.Event{
+      name: name,
+      description: attrs[:description]
+    }
+  end
+
+  defp normalize_event_block(nil), do: []
+
+  defp normalize_event_block(block) do
+    block
+    |> List.wrap()
+    |> Enum.map(&normalize_event_expr/1)
+  end
+
+  defp normalize_event_expr({:description, value}) do
+    {:description, value}
+  end
+
+  defp normalize_event_expr({:description, _meta, args}) do
+    {:description, List.first(args)}
   end
 end
