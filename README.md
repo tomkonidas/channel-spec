@@ -134,3 +134,13 @@ def deps do
   ]
 end
 ```
+
+Import ChannelSpec formatter rules in `.formatter.exs`:
+
+```elixir
+[
+  # ...
+  import_deps: [..., :channel_spec]
+  # ...
+]
+```
