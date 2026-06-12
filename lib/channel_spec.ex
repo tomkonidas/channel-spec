@@ -152,10 +152,11 @@ defmodule ChannelSpec do
     attrs = normalize_event_block(block)
 
     replies =
-      for {:reply, status, payload} <- attrs do
+      for {:reply, status, opts} <- attrs do
         %Reply{
           status: status,
-          payload: payload
+          payload: Keyword.get(opts, :payload),
+          description: Keyword.get(opts, :description)
         }
       end
 
@@ -203,11 +204,12 @@ defmodule ChannelSpec do
   end
 
   defp normalize_event_expr({:reply, _meta, [status]}) do
-    {:reply, status, nil}
+    {:reply, status, []}
   end
 
-  defp normalize_event_expr({:reply, _meta, [status, payload]}) do
-    {:reply, status, resolve_alias(payload)}
+  defp normalize_event_expr({:reply, _meta, [status, opts]}) do
+    opts = Keyword.update(opts, :payload, nil, &resolve_alias/1)
+    {:reply, status, opts}
   end
 
   defp resolve_alias({:__aliases__, _, parts}), do: Module.concat(parts)

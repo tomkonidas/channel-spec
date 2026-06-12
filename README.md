@@ -38,8 +38,15 @@ defmodule MyApp.RoomChannel do
     incoming "join" do
       description "Join a room"
       payload MyApp.JoinPayload
-      reply :ok, MyApp.JoinReply
-      reply :error, MyApp.JoinError
+
+      reply :ok,
+        payload: MyApp.JoinSuccess,
+        description: "Successfullty joined"
+
+      reply :error,
+        payload: MyApp.JoinError,
+        description: "Join failed"
+
       tags ["auth"]
     end
   end
@@ -66,11 +73,13 @@ Which returns:
       replies: [
         %ChannelSpec.Reply{
           status: :ok,
-          payload: MyApp.JoinSuccess
+          payload: MyApp.JoinSuccess,
+          description: "Successfully joined"
         },
         %ChannelSpec.Reply{
           status: :error,
-          payload: MyApp.JoinError
+          payload: MyApp.JoinError,
+          description: "Join failed"
         }
       ],
       deprecated: false,

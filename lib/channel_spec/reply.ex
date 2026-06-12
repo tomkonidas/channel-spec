@@ -28,18 +28,25 @@ defmodule ChannelSpec.Reply do
   @type payload :: module()
 
   @typedoc """
+  Arbitrary metadata associated with a reply.
+  """
+  @type metadata :: %{optional(atom()) => term()}
+
+  @typedoc """
   Represents a reply specification for a channel event.
   """
   @type t :: %__MODULE__{
           status: status(),
           payload: payload() | nil,
-          description: description() | nil
+          description: description() | nil,
+          metadata: metadata()
         }
 
   @enforce_keys [:status]
   defstruct [
     :status,
     :payload,
-    :description
+    :description,
+    metadata: %{}
   ]
 end

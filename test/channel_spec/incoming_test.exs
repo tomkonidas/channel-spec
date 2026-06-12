@@ -111,7 +111,7 @@ defmodule ChannelSpec.IncomingTest do
   end
 
   test "event supports multiple replies" do
-    defmodule ReplyChannel do
+    defmodule MultiReplyChannel do
       @moduledoc false
       use ChannelSpec
 
@@ -119,24 +119,18 @@ defmodule ChannelSpec.IncomingTest do
         topic "room:*"
 
         incoming "join" do
-          reply :unauthorized
-          reply :ok, MyApp.JoinSuccess
-          reply :error, MyApp.JoinError
-          reply :error, MyApp.SomeOtherError
+          reply :ok
+          reply :error, payload: MyApp.JoinError
+          reply :error, payload: MyApp.SomeOtherError, description: "Some other error"
         end
       end
     end
 
-    [event] = ReplyChannel.__channel_spec__().incoming
+    [event] = MultiReplyChannel.__channel_spec__().incoming
 
     assert [
              %ChannelSpec.Reply{
-               status: :unauthorized,
-               payload: nil
-             },
-             %ChannelSpec.Reply{
-               status: :ok,
-               payload: MyApp.JoinSuccess
+               status: :ok
              },
              %ChannelSpec.Reply{
                status: :error,
@@ -144,7 +138,35 @@ defmodule ChannelSpec.IncomingTest do
              },
              %ChannelSpec.Reply{
                status: :error,
-               payload: MyApp.SomeOtherError
+               payload: MyApp.SomeOtherError,
+               description: "Some other error"
+             }
+           ] = event.replies
+  end
+
+  test "reply supports keyword options" do
+    defmodule ReplyOptionsChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join" do
+          reply :ok,
+            payload: MyApp.JoinSuccess,
+            description: "Successfully joined"
+        end
+      end
+    end
+
+    [event] = ReplyOptionsChannel.__channel_spec__().incoming
+
+    assert [
+             %ChannelSpec.Reply{
+               status: :ok,
+               payload: MyApp.JoinSuccess,
+               description: "Successfully joined"
              }
            ] = event.replies
   end

@@ -50,10 +50,10 @@ defmodule ChannelSpec.EventDSL do
   ## Example
 
       incoming "join" do
-        reply :unauthorized
-        reply :ok, MyApp.JoinSuccess
-        reply :error, MyApp.JoinError
-        reply :error, MyApp.SomeOtherError
+        reply :ok
+        reply :error,
+          payload: MyApp.JoinError,
+          description: "Join failed"
       end
 
   """
@@ -64,10 +64,10 @@ defmodule ChannelSpec.EventDSL do
     end
   end
 
-  @spec reply(Reply.status(), module()) :: Macro.t()
-  defmacro reply(status, payload) do
+  @spec reply(Reply.status(), keyword()) :: Macro.t()
+  defmacro reply(status, opts) do
     quote do
-      {:reply, unquote(status), unquote(payload)}
+      {:reply, unquote(status), unquote(opts)}
     end
   end
 
