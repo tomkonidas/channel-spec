@@ -1,29 +1,42 @@
 # ChannelSpec
 
-A framework-agnostic DSL for specifying, documenting, and validating realtime
-channel contracts in Elixir.
+A framework-agnostic DSL for defining and validating realtime channel contracts
+in Elixir.
 
 > [!WARNING]
 > Early development. APIs are expected to change.
 
 ## What is ChannelSpec?
 
-ChannelSpec provides a declarative way to describe realtime channel APIs.
+ChannelSpec is a declarative specification layer for realtime communication
+systems.
 
-By defining channel contracts in code, applications can:
+It lets you define a single source of truth for how clients and servers
+interact over message-based channels—covering incoming events, payloads,
+replies, and documentation in one place.
 
-- Document incoming and outgoing events
-- Describe event payloads and replies
-- Generate AsyncAPI specifications
-- Validate contracts
-- Build tooling around a single source of truth
+Instead of scattering channel behavior across controllers, handlers, and docs,
+ChannelSpec centralizes the contract so it can be:
 
-ChannelSpec is framework-agnostic and is designed to model the realtime
-communication patterns used by systems such as
-[Phoenix Channels](https://phoenix.hexdocs.pm/channels.html) and
-[Hologram Realtime](https://hologram.page/docs/realtime).
+- Documented consistently
+- Validated at runtime or compile time
+- Used to generate API specifications (e.g. AsyncAPI)
+- Extended with tooling for testing and linting
 
-The library itself does not depend on any specific realtime framework.
+ChannelSpec is framework-agnostic and is designed to model realtime
+communication patterns such as [Phoenix Channels](https://phoenix.hexdocs.pm/channels.html),
+WebSocket APIs, and other message-based pub/sub systems. The library itself
+does not depend on any specific realtime framework.
+
+## Why it exists
+
+Realtime systems are often implicit.
+
+Event names, payload shapes, and response semantics tend to live in code rather
+than in a shared contract. This makes APIs harder to reason about, document,
+and evolve safely.
+
+ChannelSpec makes these contracts explicit.
 
 ## Example
 
@@ -94,34 +107,23 @@ Which returns:
 
 ## Goals
 
-ChannelSpec aims to provide a single source of truth for realtime channel APIs.
+ChannelSpec is designed as a foundation for tooling around realtime APIs.
 
-From a channel specification, tooling may be able to generate:
+From a single channel specification, you can generate:
 
-- AsyncAPI documents
 - Human-readable documentation
-- Validation rules
+- AsyncAPI specifications
+- Validation rules for incoming and outgoing messages
+- Shared contracts between backend and client systems
 
-## Current Status
+## Supported Features
 
-Currently supported:
-
-- Channel identifiers (`topic/1`)
-- Channel descriptions
+- Channel topics
 - Incoming events
-- Event descriptions
-- Event payloads
-- Event tags
-- Event reply payloads
-
-Planned:
-
-- Outgoing events
-- Examples
-- Metadata
-- AsyncAPI generation
-- Documentation generation
-- Contract validation
+- Payload definitions
+- Reply definitions (success / error patterns)
+- Event tagging
+- Runtime introspection
 
 ## Installation
 
