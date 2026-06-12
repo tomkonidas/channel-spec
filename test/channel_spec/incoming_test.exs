@@ -23,19 +23,6 @@ defmodule ChannelSpec.IncomingTest do
     end
   end
 
-  defmodule RichIncomingChannel do
-    @moduledoc false
-    use ChannelSpec
-
-    channel_spec do
-      topic "room:*"
-
-      incoming "join" do
-        description "User joins room"
-      end
-    end
-  end
-
   test "incoming without block creates basic event" do
     assert SimpleIncomingChannel.__channel_spec__().incoming == [
              %Event{name: "join"}
@@ -43,7 +30,20 @@ defmodule ChannelSpec.IncomingTest do
   end
 
   test "incoming with block supports description" do
-    assert RichIncomingChannel.__channel_spec__().incoming == [
+    defmodule DescriptionChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join" do
+          description "User joins room"
+        end
+      end
+    end
+
+    assert DescriptionChannel.__channel_spec__().incoming == [
              %Event{
                name: "join",
                description: "User joins room"
@@ -108,5 +108,24 @@ defmodule ChannelSpec.IncomingTest do
     [event] = TaggedChannel.__channel_spec__().incoming
 
     assert event.tags == ["auth", "presence"]
+  end
+
+  test "event supports reply" do
+    defmodule ReplyChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join" do
+          reply MyApp.JoinReply
+        end
+      end
+    end
+
+    [event] = ReplyChannel.__channel_spec__().incoming
+
+    assert event.reply == MyApp.JoinReply
   end
 end

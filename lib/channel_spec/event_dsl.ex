@@ -41,6 +41,25 @@ defmodule ChannelSpec.EventDSL do
   end
 
   @doc """
+  Defines the reply payload for an event.
+
+  Replies are typically associated with incoming events.
+
+  ## Example
+
+      incoming "join" do
+        reply MyApp.JoinReply
+      end
+
+  """
+  @spec reply(module()) :: Macro.t()
+  defmacro reply(mod) when is_atom(mod) do
+    quote do
+      {:reply, unquote(mod)}
+    end
+  end
+
+  @doc """
   Associates tags with an event.
 
   ## Example

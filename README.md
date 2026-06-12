@@ -38,6 +38,7 @@ defmodule MyApp.RoomChannel do
     incoming "join" do
       description "Join a room"
       payload MyApp.JoinPayload
+      reply MyApp.JoinReply
       tags ["auth"]
     end
   end
@@ -61,7 +62,7 @@ Which returns:
       name: "join",
       description: "Join a room",
       payload: MyApp.JoinPayload,
-      reply: nil,
+      reply: MyApp.JoinReply,
       deprecated: false,
       examples: [],
       tags: ["auth"],
@@ -92,11 +93,11 @@ Currently supported:
 - Event descriptions
 - Event payloads
 - Event tags
+- Event reply payloads
 
 Planned:
 
 - Outgoing events
-- Reply payloads
 - Examples
 - Metadata
 - AsyncAPI generation

@@ -155,6 +155,7 @@ defmodule ChannelSpec do
       name: name,
       description: attrs[:description],
       payload: attrs[:payload],
+      reply: attrs[:reply],
       tags: attrs[:tags] || []
     }
   end
@@ -185,9 +186,10 @@ defmodule ChannelSpec do
     {:tags, tags}
   end
 
-  defp resolve_alias({:__aliases__, _, parts}) do
-    Module.concat(parts)
+  defp normalize_event_expr({:reply, _meta, [mod]}) do
+    {:reply, resolve_alias(mod)}
   end
 
+  defp resolve_alias({:__aliases__, _, parts}), do: Module.concat(parts)
   defp resolve_alias(mod) when is_atom(mod), do: mod
 end
