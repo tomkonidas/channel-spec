@@ -1,24 +1,27 @@
 defmodule ChannelSpec.Spec do
   @moduledoc """
-  Represents the specification for a Phoenix Channel.
+  Represents the specification for a realtime channel.
 
-  A channel specification contains information about the topic,
-  incoming messages, outgoing messages, and associated metadata.
+  A channel specification describes a channel identifier, its events,
+  and any associated documentation or metadata.
   """
 
   alias ChannelSpec.Event
 
   @typedoc """
-  A Phoenix Channel topic pattern.
+  Identifies a realtime channel.
+
+  The format is framework-specific and may be a string, atom,
+  tuple, or any other term used to identify a channel.
 
   ## Examples
 
       "room:*"
-      "user:*"
-      "notifications"
+      :notifications
+      {:room, 123}
 
   """
-  @type topic :: String.t()
+  @type channel_identifier :: term()
 
   @typedoc """
   A human-readable description.
@@ -31,10 +34,10 @@ defmodule ChannelSpec.Spec do
   @type events :: [Event.t()]
 
   @typedoc """
-  Represents a Phoenix Channel specification.
+  Represents a realtime channel specification.
   """
   @type t :: %__MODULE__{
-          topic: topic() | nil,
+          topic: channel_identifier() | nil,
           description: description() | nil,
           incoming: events(),
           outgoing: events()

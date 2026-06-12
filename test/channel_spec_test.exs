@@ -9,7 +9,7 @@ defmodule ChannelSpecTest do
 
     channel_spec do
       topic "room:*"
-      description "Chat room channel"
+      description "Realtime chat rooms"
     end
   end
 
@@ -17,7 +17,7 @@ defmodule ChannelSpecTest do
     test "builds spec with topic and description" do
       assert RoomChannel.__channel_spec__() == %Spec{
                topic: "room:*",
-               description: "Chat room channel",
+               description: "Realtime chat rooms",
                incoming: [],
                outgoing: []
              }

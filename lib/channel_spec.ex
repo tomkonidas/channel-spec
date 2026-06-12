@@ -1,6 +1,6 @@
 defmodule ChannelSpec do
   @moduledoc """
-  A DSL for defining Phoenix Channel specifications.
+  A DSL for defining realtime channel specifications.
 
   Channel specifications describe the contract between channel clients and
   servers, including topics, events, payloads, replies, and metadata.
@@ -12,7 +12,7 @@ defmodule ChannelSpec do
 
         channel_spec do
           topic "room:*"
-          description "Chat room channel"
+          description "Realtime chat rooms"
 
           incoming "join" do
             descritpion "User joins room"
@@ -64,7 +64,7 @@ defmodule ChannelSpec do
   ## Examples
 
       topic "room:*"
-      topic "user:*"
+      topic {:room, 123}
 
   """
   @spec topic(String.t()) :: Macro.t()
@@ -79,7 +79,7 @@ defmodule ChannelSpec do
 
   ## Example
 
-      description "Chat room channel"
+      description "Realtime chat rooms"
 
   """
   @spec description(String.t()) :: Macro.t()

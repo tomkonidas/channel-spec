@@ -2,8 +2,8 @@ defmodule ChannelSpec.Event do
   @moduledoc """
   Represents an incoming or outgoing channel event.
 
-  Events are used to describe the contract between channel clients and
-  servers, including payload schemas, reply schemas, examples, and metadata.
+  Events describe the contract between participants in a realtime channel,
+  including payload definitions, reply definitions, examples, and metadata.
   """
 
   @typedoc """
@@ -17,15 +17,15 @@ defmodule ChannelSpec.Event do
   @type description :: String.t()
 
   @typedoc """
-  A schema module describing an event payload.
+  A module describing the structure of an event payload.
 
-  This will typically be an Ecto embedded schema or another module capable of
-  describing a payload contract.
+  This will typically be an Ecto embedded schema or another module used to
+  define a payload contract.
   """
   @type payload :: module()
 
   @typedoc """
-  An example event payload used for documentation purposes.
+  An example payload used for documentation purposes.
   """
   @type example :: map()
 
@@ -35,14 +35,14 @@ defmodule ChannelSpec.Event do
   @type metadata :: %{optional(atom()) => term()}
 
   @typedoc """
-  A schema module describing the payload returned in response to an event.
+  A module describing the payload returned in response to an event.
 
-  Reply schemas are typically only applicable to incoming events.
+  Replies are typically only applicable to incoming events.
   """
   @type reply :: module()
 
   @typedoc """
-  Represents a Phoenix Channel event specification.
+  Represents an event specification for a realtime channel.
   """
   @type t :: %__MODULE__{
           name: name(),

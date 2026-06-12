@@ -25,7 +25,7 @@ defmodule ChannelSpec.Fixtures do
       Map.merge(
         %{
           topic: "room:*",
-          description: "Chat room channel",
+          description: "Realtime chat rooms",
           incoming: [],
           outgoing: []
         },
