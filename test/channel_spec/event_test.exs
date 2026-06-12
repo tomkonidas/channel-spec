@@ -14,7 +14,7 @@ defmodule ChannelSpec.EventTest do
 
     assert event.description == nil
     assert event.payload == nil
-    assert event.reply == nil
+    assert event.replies == []
     assert event.deprecated == false
     assert event.examples == []
     assert event.tags == []

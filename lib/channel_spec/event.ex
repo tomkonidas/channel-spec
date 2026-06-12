@@ -6,6 +6,8 @@ defmodule ChannelSpec.Event do
   including payload definitions, reply definitions, examples, and metadata.
   """
 
+  alias ChannelSpec.Reply
+
   @typedoc """
   The name of a channel event.
   """
@@ -48,7 +50,7 @@ defmodule ChannelSpec.Event do
           name: name(),
           description: description() | nil,
           payload: payload() | nil,
-          reply: reply() | nil,
+          replies: [Reply.t()],
           deprecated: boolean(),
           examples: [example()],
           tags: [String.t()],
@@ -60,7 +62,7 @@ defmodule ChannelSpec.Event do
     :name,
     :description,
     :payload,
-    :reply,
+    replies: [],
     deprecated: false,
     examples: [],
     tags: [],

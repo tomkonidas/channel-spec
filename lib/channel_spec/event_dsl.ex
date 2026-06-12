@@ -3,6 +3,8 @@ defmodule ChannelSpec.EventDSL do
   DSL used inside `incoming` and `outgoing` blocks.
   """
 
+  alias ChannelSpec.Reply
+
   @doc """
   Sets the event description.
 
@@ -41,21 +43,31 @@ defmodule ChannelSpec.EventDSL do
   end
 
   @doc """
-  Defines the reply payload for an event.
+  Defines a possible reply for an event.
 
   Replies are typically associated with incoming events.
 
   ## Example
 
       incoming "join" do
-        reply MyApp.JoinReply
+        reply :unauthorized
+        reply :ok, MyApp.JoinSuccess
+        reply :error, MyApp.JoinError
+        reply :error, MyApp.SomeOtherError
       end
 
   """
-  @spec reply(module()) :: Macro.t()
-  defmacro reply(mod) when is_atom(mod) do
+  @spec reply(Reply.status()) :: Macro.t()
+  defmacro reply(status) do
     quote do
-      {:reply, unquote(mod)}
+      {:reply, unquote(status)}
+    end
+  end
+
+  @spec reply(Reply.status(), module()) :: Macro.t()
+  defmacro reply(status, payload) do
+    quote do
+      {:reply, unquote(status), unquote(payload)}
     end
   end
 

@@ -110,7 +110,7 @@ defmodule ChannelSpec.IncomingTest do
     assert event.tags == ["auth", "presence"]
   end
 
-  test "event supports reply" do
+  test "event supports multiple replies" do
     defmodule ReplyChannel do
       @moduledoc false
       use ChannelSpec
@@ -119,13 +119,33 @@ defmodule ChannelSpec.IncomingTest do
         topic "room:*"
 
         incoming "join" do
-          reply MyApp.JoinReply
+          reply :unauthorized
+          reply :ok, MyApp.JoinSuccess
+          reply :error, MyApp.JoinError
+          reply :error, MyApp.SomeOtherError
         end
       end
     end
 
     [event] = ReplyChannel.__channel_spec__().incoming
 
-    assert event.reply == MyApp.JoinReply
+    assert [
+             %ChannelSpec.Reply{
+               status: :unauthorized,
+               payload: nil
+             },
+             %ChannelSpec.Reply{
+               status: :ok,
+               payload: MyApp.JoinSuccess
+             },
+             %ChannelSpec.Reply{
+               status: :error,
+               payload: MyApp.JoinError
+             },
+             %ChannelSpec.Reply{
+               status: :error,
+               payload: MyApp.SomeOtherError
+             }
+           ] = event.replies
   end
 end

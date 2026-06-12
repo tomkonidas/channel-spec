@@ -26,6 +26,9 @@ defmodule ChannelSpec do
 
   """
 
+  alias ChannelSpec.Event
+  alias ChannelSpec.Reply
+
   @doc false
   @spec __using__(keyword()) :: Macro.t()
   defmacro __using__(_opts) do
@@ -142,20 +145,33 @@ defmodule ChannelSpec do
   end
 
   defp build_event({:incoming, name, nil}) do
-    %ChannelSpec.Event{name: name}
+    %Event{name: name}
   end
 
   defp build_event({:incoming, name, block}) do
+    attrs = normalize_event_block(block)
+
+    replies =
+      for {:reply, status, payload} <- attrs do
+        %Reply{
+          status: status,
+          payload: payload
+        }
+      end
+
     attrs =
-      block
-      |> normalize_event_block()
+      attrs
+      |> Enum.reject(fn
+        {:reply, _, _} -> true
+        _ -> false
+      end)
       |> Map.new()
 
-    %ChannelSpec.Event{
+    %Event{
       name: name,
       description: attrs[:description],
       payload: attrs[:payload],
-      reply: attrs[:reply],
+      replies: replies,
       tags: attrs[:tags] || []
     }
   end
@@ -186,8 +202,12 @@ defmodule ChannelSpec do
     {:tags, tags}
   end
 
-  defp normalize_event_expr({:reply, _meta, [mod]}) do
-    {:reply, resolve_alias(mod)}
+  defp normalize_event_expr({:reply, _meta, [status]}) do
+    {:reply, status, nil}
+  end
+
+  defp normalize_event_expr({:reply, _meta, [status, payload]}) do
+    {:reply, status, resolve_alias(payload)}
   end
 
   defp resolve_alias({:__aliases__, _, parts}), do: Module.concat(parts)

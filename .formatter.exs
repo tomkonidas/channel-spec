@@ -5,7 +5,8 @@ locals_without_parens = [
   incoming: 1,
   payload: 1,
   tags: 1,
-  reply: 1
+  reply: 1,
+  reply: 2
 ]
 
 [
