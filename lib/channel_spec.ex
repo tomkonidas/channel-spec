@@ -19,6 +19,12 @@ defmodule ChannelSpec do
             payload MyApp.JoinPayload
             tags ["auth", "presence"]
           end
+
+          outgoing "joined" do
+            description "A user joined the room"
+            payload: MyApp.JoinedPayload
+            tags ["presence"]
+          end
         end
       end
 
@@ -38,6 +44,7 @@ defmodule ChannelSpec do
       Module.register_attribute(__MODULE__, :channel_spec_topic, [])
       Module.register_attribute(__MODULE__, :channel_spec_description, [])
       Module.register_attribute(__MODULE__, :channel_spec_incoming, accumulate: true)
+      Module.register_attribute(__MODULE__, :channel_spec_outgoing, accumulate: true)
 
       @before_compile ChannelSpec
     end
@@ -118,6 +125,32 @@ defmodule ChannelSpec do
     end
   end
 
+  @doc """
+  Defines an outgoing channel event.
+
+  ## Examples
+
+      outgoing "joined"
+
+      outgoing "joined" do
+        descritpion "A user joined the room"
+      end
+
+  """
+  @spec outgoing(String.t()) :: Macro.t()
+  defmacro outgoing(name) do
+    quote do
+      @channel_spec_outgoing {:outgoing, unquote(name), nil}
+    end
+  end
+
+  @spec outgoing(String.t(), do: Macro.t()) :: Macro.t()
+  defmacro outgoing(name, do: block) do
+    quote do
+      @channel_spec_outgoing {:outgoing, unquote(name), unquote(Macro.escape(block))}
+    end
+  end
+
   @doc false
   @spec __before_compile__(Macro.Env.t()) :: Macro.t()
   defmacro __before_compile__(env) do
@@ -130,12 +163,18 @@ defmodule ChannelSpec do
       |> Enum.map(&build_event/1)
       |> Enum.reverse()
 
+    outgoing =
+      env.module
+      |> Module.get_attribute(:channel_spec_outgoing)
+      |> Enum.map(&build_event/1)
+      |> Enum.reverse()
+
     quote do
       @channel_spec %ChannelSpec.Spec{
         topic: unquote(topic),
         description: unquote(description),
         incoming: unquote(Macro.escape(incoming)),
-        outgoing: []
+        outgoing: unquote(Macro.escape(outgoing))
       }
 
       @doc false
@@ -144,11 +183,11 @@ defmodule ChannelSpec do
     end
   end
 
-  defp build_event({:incoming, name, nil}) do
+  defp build_event({_direction, name, nil}) do
     %Event{name: name}
   end
 
-  defp build_event({:incoming, name, block}) do
+  defp build_event({direction, name, block}) do
     attrs = normalize_event_block(block)
 
     replies =
@@ -159,6 +198,11 @@ defmodule ChannelSpec do
           description: Keyword.get(opts, :description)
         }
       end
+
+    if direction == :outgoing and replies != [] do
+      raise ChannelSpec.ValidationError,
+            ~s(replies are not supported for outgoing event "#{name}")
+    end
 
     attrs =
       attrs

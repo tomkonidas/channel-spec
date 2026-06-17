@@ -3,27 +3,18 @@ defmodule ChannelSpec.IncomingTest do
 
   alias ChannelSpec.Event
 
-  defmodule BaseChannel do
-    @moduledoc false
-    use ChannelSpec
-
-    channel_spec do
-      topic "room:*"
-    end
-  end
-
-  defmodule SimpleIncomingChannel do
-    @moduledoc false
-    use ChannelSpec
-
-    channel_spec do
-      topic "room:*"
-
-      incoming "join"
-    end
-  end
-
   test "incoming without block creates basic event" do
+    defmodule SimpleIncomingChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join"
+      end
+    end
+
     assert SimpleIncomingChannel.__channel_spec__().incoming == [
              %Event{name: "join"}
            ]

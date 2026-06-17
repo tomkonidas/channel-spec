@@ -54,13 +54,19 @@ defmodule MyApp.RoomChannel do
 
       reply :ok,
         payload: MyApp.JoinSuccess,
-        description: "Successfullty joined"
+        description: "Successfully joined"
 
       reply :error,
         payload: MyApp.JoinError,
         description: "Join failed"
 
       tags ["auth"]
+    end
+
+    outgoing "joined" do
+      description "A user joined the room"
+      payload MyApp.JoinedPayload
+      tags ["presence"]
     end
   end
 end
@@ -95,13 +101,17 @@ Which returns:
           description: "Join failed"
         }
       ],
-      deprecated: false,
-      examples: [],
-      tags: ["auth"],
-      metadata: %{}
+      tags: ["auth"]
     }
   ],
-  outgoing: []
+  outgoing: [
+    %ChannelSpec.Event{
+      name: "joined",
+      description: "A user joined the room",
+      payload: MyApp.JoinedPayload,
+      tags: ["presence"]
+    }
+  ]
 }
 ```
 
@@ -120,6 +130,7 @@ From a single channel specification, you can generate:
 
 - Channel topics
 - Incoming events
+- Outgoing events
 - Payload definitions
 - Reply definitions (success / error patterns)
 - Event tagging
@@ -137,7 +148,7 @@ def deps do
 end
 ```
 
-Import ChannelSpec formatter rules in `.formatter.exs`:
+Import `:channel_spec` formatter rules in `.formatter.exs`:
 
 ```elixir
 [

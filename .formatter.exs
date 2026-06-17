@@ -3,6 +3,7 @@ locals_without_parens = [
   topic: 1,
   description: 1,
   incoming: 1,
+  outgoing: 1,
   payload: 1,
   tags: 1,
   reply: 1,
