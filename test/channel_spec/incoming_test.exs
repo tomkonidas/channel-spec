@@ -181,6 +181,29 @@ defmodule ChannelSpec.IncomingTest do
     assert event.deprecated == true
   end
 
+  test "event supports multiple examples" do
+    defmodule ExampleChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join" do
+          example(%{room_id: "123"})
+          example(%{room_id: "456"})
+        end
+      end
+    end
+
+    [event] = ExampleChannel.__channel_spec__().incoming
+
+    assert event.examples == [
+             %{room_id: "123"},
+             %{room_id: "456"}
+           ]
+  end
+
   test "event supports metadata" do
     defmodule MetadataChannel do
       @moduledoc false

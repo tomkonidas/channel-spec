@@ -89,6 +89,24 @@ defmodule ChannelSpec.EventDSL do
   end
 
   @doc """
+  Adds an example payload for an event.
+
+  ## Example
+
+      incoming "join" do
+        example %{room_id: "123"}
+        example %{room_id: "456"}
+      end
+
+  """
+  @spec example(map()) :: Macro.t()
+  defmacro example(value) when is_map(value) do
+    quote do
+      {:example, unquote(value)}
+    end
+  end
+
+  @doc """
   Associates arbitrary metadata with an event.
 
   ## Example

@@ -204,10 +204,16 @@ defmodule ChannelSpec do
             ~s(replies are not supported for outgoing event "#{name}")
     end
 
+    examples =
+      for {:example, example} <- attrs do
+        example
+      end
+
     attrs =
       attrs
       |> Enum.reject(fn
         {:reply, _, _} -> true
+        {:example, _} -> true
         _ -> false
       end)
       |> Map.new()
@@ -218,6 +224,7 @@ defmodule ChannelSpec do
       payload: attrs[:payload],
       replies: replies,
       deprecated: attrs[:deprecated] || false,
+      examples: examples,
       tags: attrs[:tags] || [],
       metadata: attrs[:metadata] || %{}
     }
@@ -251,6 +258,10 @@ defmodule ChannelSpec do
 
   defp normalize_event_expr({:deprecated, _meta, [value]}) do
     {:deprecated, value}
+  end
+
+  defp normalize_event_expr({:example, _meta, [value]}) do
+    {:example, eval_literal(value)}
   end
 
   defp normalize_event_expr({:metadata, _meta, [value]}) do
