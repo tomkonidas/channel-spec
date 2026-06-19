@@ -72,6 +72,23 @@ defmodule ChannelSpec.EventDSL do
   end
 
   @doc """
+  Marks an event as deprecated.
+
+  ## Example
+
+      incoming "join" do
+        deprecated true
+      end
+
+  """
+  @spec deprecated(boolean()) :: Macro.t()
+  defmacro deprecated(value) when is_boolean(value) do
+    quote do
+      {:deprecated, unquote(value)}
+    end
+  end
+
+  @doc """
   Associates tags with an event.
 
   ## Example

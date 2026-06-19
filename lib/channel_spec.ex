@@ -217,6 +217,7 @@ defmodule ChannelSpec do
       description: attrs[:description],
       payload: attrs[:payload],
       replies: replies,
+      deprecated: attrs[:deprecated] || false,
       tags: attrs[:tags] || []
     }
   end
@@ -245,6 +246,10 @@ defmodule ChannelSpec do
 
   defp normalize_event_expr({:tags, _meta, [tags]}) do
     {:tags, tags}
+  end
+
+  defp normalize_event_expr({:deprecated, _meta, [value]}) do
+    {:deprecated, value}
   end
 
   defp normalize_event_expr({:reply, _meta, [status]}) do

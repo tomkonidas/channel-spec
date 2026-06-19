@@ -161,4 +161,23 @@ defmodule ChannelSpec.IncomingTest do
              }
            ] = event.replies
   end
+
+  test "event supports deprecated flag" do
+    defmodule DeprecatedChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join" do
+          deprecated(true)
+        end
+      end
+    end
+
+    [event] = DeprecatedChannel.__channel_spec__().incoming
+
+    assert event.deprecated == true
+  end
 end
