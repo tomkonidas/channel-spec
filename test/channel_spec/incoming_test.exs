@@ -180,4 +180,27 @@ defmodule ChannelSpec.IncomingTest do
 
     assert event.deprecated == true
   end
+
+  test "event supports metadata" do
+    defmodule MetadataChannel do
+      @moduledoc false
+      use ChannelSpec
+
+      channel_spec do
+        topic "room:*"
+
+        incoming "join" do
+          metadata(%{
+            category: :auth
+          })
+        end
+      end
+    end
+
+    [event] = MetadataChannel.__channel_spec__().incoming
+
+    assert event.metadata == %{
+             category: :auth
+           }
+  end
 end

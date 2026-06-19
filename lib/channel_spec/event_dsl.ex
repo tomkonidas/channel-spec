@@ -89,6 +89,25 @@ defmodule ChannelSpec.EventDSL do
   end
 
   @doc """
+  Associates arbitrary metadata with an event.
+
+  ## Example
+
+      incoming "join" do
+        metadata(%{
+          category: :auth
+        })
+      end
+
+  """
+  @spec metadata(map()) :: Macro.t()
+  defmacro metadata(value) when is_map(value) do
+    quote do
+      {:metadata, unquote(value)}
+    end
+  end
+
+  @doc """
   Associates tags with an event.
 
   ## Example

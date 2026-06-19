@@ -218,7 +218,8 @@ defmodule ChannelSpec do
       payload: attrs[:payload],
       replies: replies,
       deprecated: attrs[:deprecated] || false,
-      tags: attrs[:tags] || []
+      tags: attrs[:tags] || [],
+      metadata: attrs[:metadata] || %{}
     }
   end
 
@@ -252,6 +253,10 @@ defmodule ChannelSpec do
     {:deprecated, value}
   end
 
+  defp normalize_event_expr({:metadata, _meta, [value]}) do
+    {:metadata, eval_literal(value)}
+  end
+
   defp normalize_event_expr({:reply, _meta, [status]}) do
     {:reply, status, []}
   end
@@ -263,4 +268,9 @@ defmodule ChannelSpec do
 
   defp resolve_alias({:__aliases__, _, parts}), do: Module.concat(parts)
   defp resolve_alias(mod) when is_atom(mod), do: mod
+
+  defp eval_literal(ast) do
+    {value, _binding} = Code.eval_quoted(ast)
+    value
+  end
 end
